@@ -18,13 +18,27 @@ const CompareDataWrapper: React.FC = () => {
     const loadData = async () => {
       try {
         const result = await scenariosPromise;
-        // Add lowercase id field to each row
-        const validatedData = result.map((row: any, index: number) => ({
-          ...row,
-          // Add lowercase id using the Id field or generate one
-          id: row.Id || `generated-${index + 1}`
-        }));
-        setData(validatedData);
+        // Debug: Log the first row to see field names
+        if (result.length > 0) {
+          console.log('First row fields:', Object.keys(result[0]));
+          console.log('First row data:', result[0]);
+          
+          // Debug: Check specific fields we're having trouble with
+          const fieldsToCheck = [
+            '﻿Jurisidction Name',
+            'Document Source: Original ',
+            'Government Website? ',
+            'Document Source: English ',
+            'Translation Type ',
+            'Plain Text File Directory File Path '
+          ];
+          
+          fieldsToCheck.forEach(field => {
+            console.log(`Field "${field}" exists:`, field in result[0]);
+            console.log(`Field "${field}" value:`, result[0][field]);
+          });
+        }
+        setData(result);
       } catch (error) {
         console.error('Error loading scenarios:', error);
         setData([]);

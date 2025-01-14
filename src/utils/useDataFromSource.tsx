@@ -9,11 +9,11 @@ import { openApiModal } from '../context/actions';
  */
 interface DataItem {
   id: string;
-  name: string;
+  [key: string]: string | undefined;  // Add index signature to allow any string key
   // Add other fields as necessary
 }
 
-export const useDataFromSource = (dataSource: string): Promise<DataItem[]> => {
+export const useDataFromSource = (dataSource: string) => {
   const { dispatch } = useAppState();
   const [data, setData] = useState<DataItem[]>([]);
   /** Get the base portion of the URL. Will be blank when running locally. */
@@ -30,11 +30,61 @@ export const useDataFromSource = (dataSource: string): Promise<DataItem[]> => {
       const fileExtension = dataSource.split('.').pop();
       const isExternal = dataSource.startsWith('http');
       const dataSourcePath = isExternal ? dataSource : `${basename}/${dataSource}`;
-      let data: DataItem[] = [];
+      let fetchedData: DataItem[] = [];
+      
       if (fileExtension === 'csv') {
-        data = await d3.csv(dataSourcePath);
+        try {
+          // First fetch the raw CSV text
+          const response = await fetch(dataSourcePath);
+          const text = await response.text();
+          
+          // Parse CSV manually to preserve exact field names
+          const rows = text.split('\n');
+          const headers = rows[0].split(',').map(h => h.trim().replace(/^"|"$/g, ''));
+          
+          // Parse remaining rows
+          fetchedData = rows.slice(1).filter(row => row.trim()).map(row => {
+            // Handle quoted fields that may contain commas
+            const values: string[] = [];
+            let inQuotes = false;
+            let currentValue = '';
+            
+            for (let i = 0; i < row.length; i++) {
+              const char = row[i];
+              if (char === '"') {
+                inQuotes = !inQuotes;
+              } else if (char === ',' && !inQuotes) {
+                values.push(currentValue.trim().replace(/^"|"$/g, ''));
+                currentValue = '';
+              } else {
+                currentValue += char;
+              }
+            }
+            values.push(currentValue.trim().replace(/^"|"$/g, ''));
+
+            const item: DataItem = { id: '' };
+            headers.forEach((header, index) => {
+              // Remove BOM from header if it exists
+              const cleanHeader = header.replace(/^\uFEFF/, '');
+              item[cleanHeader] = values[index] || '';
+            });
+            
+            // Debug log for Sector field
+            if (item['Sector: Public, Private, or Both (From Tables) ']) {
+              console.log('Sector value:', item['Sector: Public, Private, or Both (From Tables) ']);
+            }
+            
+            return item;
+          });
+          
+          console.log('Headers:', headers);
+          console.log('First row:', fetchedData[0]);
+        } catch (error) {
+          console.error('Error loading CSV:', error);
+          dispatch(openApiModal());
+        }
       } else if (fileExtension === 'tsv') {
-        data = await d3.tsv(dataSourcePath);
+        fetchedData = await d3.tsv(dataSourcePath) as unknown as DataItem[];
       } else if (fileExtension === 'json' || isExternal) {
         let headers = new Headers();
         const apiTokenName = localStorage.getItem('apiTokenName');
@@ -55,15 +105,16 @@ export const useDataFromSource = (dataSource: string): Promise<DataItem[]> => {
             dispatch(openApiModal());
             throw new Error("unable to fetch");
           }
-          data = await response.json();
+          fetchedData = await response.json();
         } catch (e) {
           console.log(e);
         }
       }
-      setData(data);
+      setData(fetchedData);
     }
+
     fetchData();
-  }, []);
+  }, [dataSource, basename, dispatch]);
 
   return data;
 }

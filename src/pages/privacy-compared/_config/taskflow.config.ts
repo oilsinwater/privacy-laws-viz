@@ -18,7 +18,7 @@ export const taskflow: CompareDataConfig = {
       tableColumns: [
         { field: 'id', headerName: 'ID', width: 100 },
         {
-          field: 'Jurisdiction Name',
+          field: 'Jurisidction Name',  
           headerName: 'Jurisdiction Name',
           width: 200,
         },
@@ -43,7 +43,7 @@ export const taskflow: CompareDataConfig = {
           width: 200,
         },
         {
-          field: 'Originally Passed',
+          field: 'Originally Passed',  
           headerName: 'Originally Passed',
           width: 150,
         },
@@ -53,59 +53,32 @@ export const taskflow: CompareDataConfig = {
           width: 150,
         },
         {
-          field: 'Sector: Public, Private, or Both (From Tables)',
+          field: 'Sector: Public, Private, or Both (From Tables) ',  
           headerName: 'Sector',
           width: 200,
         },
         {
-          field: 'First Privacy Law',
-          headerName: 'First Privacy Law',
-          width: 200,
-        },
-        {
-          field: 'This Law Promulgated',
-          headerName: 'This Law Promulgated',
-          width: 200,
-        },
-        {
-          field: 'Last: Latest Revision',
-          headerName: 'Last Revision',
-          width: 200,
-        },
-        {
-          field: 'International Agreements (From Tables)',
-          headerName: 'International Agreements',
-          width: 250,
-        },
-        { field: 'Member (From Tables)', headerName: 'Member', width: 200 },
-        {
-          field: 'Original Language',
-          headerName: 'Original Language',
-          width: 150,
-        },
-        {
-          field: 'Document Source: Original',
+          field: 'Document Source: Original',  
           headerName: 'Document Source: Original',
           width: 250,
         },
         {
-          field: 'Government Website?',
+          field: 'Government Website?',  
           headerName: 'Government Website?',
           width: 150,
         },
         {
-          field: 'Document Source: English',
+          field: 'Document Source: English',  
           headerName: 'Document Source: English',
           width: 250,
         },
         {
-          field: 'Translation Type',
+          field: 'Translation Type',  
           headerName: 'Translation Type',
           width: 200,
         },
-        { field: 'Starting Source', headerName: 'Starting Source', width: 200 },
         {
-          field: 'Plain Text File Directory File Path',
+          field: 'Plain Text File Directory File Path',  
           headerName: 'File Path',
           width: 250,
         },

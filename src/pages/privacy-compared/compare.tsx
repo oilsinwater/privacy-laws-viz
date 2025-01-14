@@ -16,7 +16,8 @@ import { useDataFromSource } from '../../utils/useDataFromSource';
  */
 const ScenarioComparison: React.FC = () => {
   const { state, dispatch } = useCompareData();
-  const [comparisonData, setComparisonData] = useState<any[]>([]); // State to hold the comparison data
+  const [comparisonData, setComparisonData] = useState<any[]>([]);
+  const data = useDataFromSource(taskflow.data.items.source);
 
   /**
    * Set comparing to true whenever this page renders.
@@ -24,20 +25,16 @@ const ScenarioComparison: React.FC = () => {
    */
   useEffect(() => {
     dispatch(setComparing(true));
-    // Fetch the CSV data when the component mounts
-    useDataFromSource(taskflow.data.items.source)
-      .then((results: any[]) => { 
-        setComparisonData(results);
-      })
-      .catch((error) => {
-        console.error('Error fetching the CSV file:', error);
-        setComparisonData([]);
-      });
-
     return () => {
       dispatch(setComparing(false));
     };
   }, [dispatch]);
+
+  useEffect(() => {
+    if (data) {
+      setComparisonData(data);
+    }
+  }, [data]);
 
   /**
    * Content to render on the page for this component
