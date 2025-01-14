@@ -7,9 +7,15 @@ import { openApiModal } from '../context/actions';
  * Get data from a local source or REST API.
  * Include the local basename if pulling from a local source.
  */
-export const useDataFromSource = (dataSource: string): any => {
+interface DataItem {
+  id: string;
+  name: string;
+  // Add other fields as necessary
+}
+
+export const useDataFromSource = (dataSource: string): Promise<DataItem[]> => {
   const { dispatch } = useAppState();
-  const [data, setData] = useState();
+  const [data, setData] = useState<DataItem[]>([]);
   /** Get the base portion of the URL. Will be blank when running locally. */
   const base = document.querySelector('base')?.getAttribute('href') ?? '';
   /** 
@@ -24,7 +30,7 @@ export const useDataFromSource = (dataSource: string): any => {
       const fileExtension = dataSource.split('.').pop();
       const isExternal = dataSource.startsWith('http');
       const dataSourcePath = isExternal ? dataSource : `${basename}/${dataSource}`;
-      let data: any = [];
+      let data: DataItem[] = [];
       if (fileExtension === 'csv') {
         data = await d3.csv(dataSourcePath);
       } else if (fileExtension === 'tsv') {

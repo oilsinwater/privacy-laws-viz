@@ -1,5 +1,5 @@
 import { Box } from '@mui/material';
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Outlet } from 'react-router-dom';
 import { TopBar } from '../../components/TopBar';
 import { useDataFromSource } from '../../utils/useDataFromSource';
@@ -11,11 +11,22 @@ import { taskflow } from './_config/taskflow.config';
  * Inner pages are rendered inside the `<Outlet />` component
  */
 const CompareDataWrapper: React.FC = () => {
-  const scenarios = useDataFromSource(taskflow.data.items.source);
+  const [data, setData] = useState<any[]>([]);
+  const scenariosPromise = useDataFromSource(taskflow.data.items.source);
 
-  /**
-   * Content to render on the page for this component
-   */
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        const result = await scenariosPromise;
+        setData(result);
+      } catch (error) {
+        console.error('Error loading scenarios:', error);
+        setData([]);
+      }
+    };
+    loadData();
+  }, [scenariosPromise]);
+
   return (
     <Box>
       <Box sx={{ flexGrow: 1 }}>
@@ -23,7 +34,7 @@ const CompareDataWrapper: React.FC = () => {
       </Box>
       <Box>
         <CompareDataProvider 
-          data={scenarios || []} 
+          data={data} 
           columns={taskflow.pages.index.tableColumns} 
           dataIdField='id'
         >

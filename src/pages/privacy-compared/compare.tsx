@@ -1,12 +1,13 @@
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { Box, Button, Container, Link, Paper, Stack } from '@mui/material';
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link as RouterLink } from 'react-router-dom';
 import { PageHeader } from '../../components/PageHeader';
 import { useCompareData } from './_context/ContextProvider';
 import { setComparing } from './_context/actions';
 import { DataGrid } from '@mui/x-data-grid';
 import { taskflow } from './_config/taskflow.config';
+import { useDataFromSource } from '../../utils/useDataFromSource';
 
 /**
  * Comparison page for the compare-data Task Flow.
@@ -15,6 +16,7 @@ import { taskflow } from './_config/taskflow.config';
  */
 const ScenarioComparison: React.FC = () => {
   const { state, dispatch } = useCompareData();
+  const [comparisonData, setComparisonData] = useState<any[]>([]); // State to hold the comparison data
 
   /**
    * Set comparing to true whenever this page renders.
@@ -22,11 +24,20 @@ const ScenarioComparison: React.FC = () => {
    */
   useEffect(() => {
     dispatch(setComparing(true));
+    // Fetch the CSV data when the component mounts
+    useDataFromSource(taskflow.data.items.source)
+      .then((results: any[]) => { 
+        setComparisonData(results); // Set the fetched data to state
+      })
+      .catch((error) => {
+        console.error('Error fetching the CSV file:', error);
+      });
+
     return () => {
-      dispatch(setComparing(false))
-    }
-  }, []);
-  
+      dispatch(setComparing(false));
+    };
+  }, [dispatch]);
+
   /**
    * Content to render on the page for this component
    */
@@ -69,19 +80,18 @@ const ScenarioComparison: React.FC = () => {
           sx={{
             '& .MuiDataGrid-columnHeader, .MuiDataGrid-cell': {
               borderRight: '1px solid',
-              borderRightColor: 'neutral.main'
+              borderRightColor: 'neutral.main',
             },
             '& .compare-data--metric': {
               fontWeight: 'bold',
             },
-            
           }}
         >
           {state.comparing && (
             <DataGrid
-              rows={state.comparisonData}
-              getRowId={(row) => row.metric}
-              columns={state.comparisonColumns}
+              rows={comparisonData} // Use the fetched comparison data
+              getRowId={(row) => row.Id} // Assuming 'Id' is the unique identifier
+              columns={taskflow.pages.index.tableColumns} // Use columns defined in taskflow configuration
               disableRowSelectionOnClick
               disableDensitySelector
               disableColumnFilter
@@ -91,6 +101,6 @@ const ScenarioComparison: React.FC = () => {
       </Container>
     </Box>
   );
-}
+};
 
 export default ScenarioComparison;
