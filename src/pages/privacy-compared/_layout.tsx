@@ -18,7 +18,13 @@ const CompareDataWrapper: React.FC = () => {
     const loadData = async () => {
       try {
         const result = await scenariosPromise;
-        setData(result);
+        // Add lowercase id field to each row
+        const validatedData = result.map((row: any, index: number) => ({
+          ...row,
+          // Add lowercase id using the Id field or generate one
+          id: row.Id || `generated-${index + 1}`
+        }));
+        setData(validatedData);
       } catch (error) {
         console.error('Error loading scenarios:', error);
         setData([]);
@@ -36,7 +42,7 @@ const CompareDataWrapper: React.FC = () => {
         <CompareDataProvider 
           data={data} 
           columns={taskflow.pages.index.tableColumns} 
-          dataIdField='id'
+          dataIdField="id"
         >
           <Outlet />
         </CompareDataProvider>

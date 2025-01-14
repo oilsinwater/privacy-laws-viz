@@ -8,7 +8,7 @@ export const taskflow: CompareDataConfig = {
   data: {
     items: {
       source: 'public/data/default/privacy_laws_with_ids.csv',
-      idField: 'Id',
+      idField: 'id',
     },
   },
   pages: {
@@ -16,9 +16,9 @@ export const taskflow: CompareDataConfig = {
       title: 'Compare Privacy Laws',
       description: 'Description of this app section',
       tableColumns: [
-        { field: 'Id', headerName: 'ID', width: 100 },
+        { field: 'id', headerName: 'ID', width: 100 },
         {
-          field: 'Jurisidction Name',
+          field: 'Jurisdiction Name',
           headerName: 'Jurisdiction Name',
           width: 200,
         },

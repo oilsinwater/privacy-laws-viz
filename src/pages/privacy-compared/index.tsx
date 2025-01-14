@@ -68,7 +68,7 @@ const ScenarioList: React.FC = () => {
         <Paper>
           <DataGrid
             rows={state.data}
-            getRowId={(row) => row[state.dataIdField]}
+            getRowId={(row) => row.id}
             columns={state.columns}
             checkboxSelection
             rowSelectionModel={state.selectedRows}
