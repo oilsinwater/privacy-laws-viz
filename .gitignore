@@ -3,3 +3,6 @@
 # dependencies
 node_modules/
 .webui_secret_key
+public/data/.DS_Store
+public/.DS_Store
+.DS_Store
