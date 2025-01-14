@@ -1,7 +1,5 @@
 import * as d3 from 'd3-fetch';
-import { useAppState } from '../context/ContextProvider';
-import { useEffect, useState } from 'react';
-import { openApiModal } from '../context/actions';
+import { useState, useEffect } from 'react';
 
 /**
  * Get data from a local source or REST API.
@@ -14,7 +12,6 @@ interface DataItem {
 }
 
 export const useDataFromSource = (dataSource: string) => {
-  const { dispatch } = useAppState();
   const [data, setData] = useState<DataItem[]>([]);
   /** Get the base portion of the URL. Will be blank when running locally. */
   const base = document.querySelector('base')?.getAttribute('href') ?? '';
@@ -79,42 +76,39 @@ export const useDataFromSource = (dataSource: string) => {
           
           console.log('Headers:', headers);
           console.log('First row:', fetchedData[0]);
+          setData(fetchedData);
         } catch (error) {
           console.error('Error loading CSV:', error);
-          dispatch(openApiModal());
+          setData([]);
         }
       } else if (fileExtension === 'tsv') {
-        fetchedData = await d3.tsv(dataSourcePath) as unknown as DataItem[];
-      } else if (fileExtension === 'json' || isExternal) {
-        let headers = new Headers();
-        const apiTokenName = localStorage.getItem('apiTokenName');
-        const apiTokenValue = localStorage.getItem('apiTokenValue');
-        if (apiTokenName && apiTokenValue) {
-          headers = new Headers({
-            [apiTokenName]: apiTokenValue,
-          });
+        try {
+          fetchedData = await d3.tsv(dataSourcePath) as unknown as DataItem[];
+          setData(fetchedData);
+        } catch (error) {
+          console.error('Error loading TSV:', error);
+          setData([]);
         }
+      } else if (fileExtension === 'json' || isExternal) {
         try {
           const response = await fetch(dataSourcePath, {
-            headers: headers,
             method: 'GET',
             redirect: 'follow',
           });
           if (!response.ok) {
-            console.log(response);
-            dispatch(openApiModal());
             throw new Error("unable to fetch");
           }
           fetchedData = await response.json();
-        } catch (e) {
-          console.log(e);
+          setData(fetchedData);
+        } catch (error) {
+          console.error('Error loading JSON:', error);
+          setData([]);
         }
       }
-      setData(fetchedData);
-    }
+    };
 
     fetchData();
-  }, [dataSource, basename, dispatch]);
+  }, [dataSource, basename]);
 
   return data;
-}
+};
