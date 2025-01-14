@@ -27,10 +27,18 @@ const ScenarioComparison: React.FC = () => {
     // Fetch the CSV data when the component mounts
     useDataFromSource(taskflow.data.items.source)
       .then((results: any[]) => { 
-        setComparisonData(results); // Set the fetched data to state
+        // Clean and transform the data
+        const cleanedData = results.map(row => ({
+          ...row,
+          id: row.Id || row.id, // Ensure we have a lowercase 'id' field
+          // Clean the jurisdiction name field by removing any hidden characters
+          'Jurisidction Name': row['Jurisidction Name']?.trim().replace(/^\uFEFF/, '') || row['﻿Jurisidction Name']?.trim()
+        }));
+        setComparisonData(cleanedData);
       })
       .catch((error) => {
         console.error('Error fetching the CSV file:', error);
+        setComparisonData([]);
       });
 
     return () => {
@@ -89,9 +97,9 @@ const ScenarioComparison: React.FC = () => {
         >
           {state.comparing && (
             <DataGrid
-              rows={comparisonData} // Use the fetched comparison data
-              getRowId={(row) => row.Id} // Assuming 'Id' is the unique identifier
-              columns={taskflow.pages.index.tableColumns} // Use columns defined in taskflow configuration
+              rows={comparisonData}
+              getRowId={(row) => row.id || row.Id}
+              columns={taskflow.pages.index.tableColumns}
               disableRowSelectionOnClick
               disableDensitySelector
               disableColumnFilter
