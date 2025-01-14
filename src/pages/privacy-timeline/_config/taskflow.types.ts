@@ -11,7 +11,8 @@ export interface CompareDataConfig {
   properties: {
     itemName: string,
     itemNamePlural: string,
-  },
+    columns: CompareDataConfigColDef[];
+  };
   data: {
     items: {
       source: string,
