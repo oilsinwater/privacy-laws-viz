@@ -9,9 +9,6 @@ export type Path =
   | `/privacy-compared`
   | `/privacy-compared/compare`
   | `/privacy-compared/new`
-  | `/privacy-timeline`
-  | `/privacy-timeline/compare`
-  | `/privacy-timeline/new`
 
 export type Params = {
   
